@@ -3,13 +3,14 @@
  * @author Adam Risi <ajrisi@gmail.com>
  * @date   Thu Sep 17 23:42:54 2009
  * 
- * @brief  A keylogger written in C, uses the /dev/input/device method
+ * @brief  A keylogger written in C, uses the /dev/input/device method.
  * 
  * 
  */
 
 #include <stdio.h>
 #include <string.h>
+#include <getopt.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <fcntl.h>
