@@ -176,17 +176,16 @@ int main(int argc, char **argv)
     }
     
     switch(o) {
+    case 'v':
+      verbose_mode = 1;
+      break;
     case 0:
       if(option_index == SHOW_SELECTIVE_CONTROL_MODE_OPT) {
-	V{
-	  fprintf(stderr, "Enabling selective control (manual)\n");
-	}
 	show_selective_control = 1;
+	show_control = 0;
       } else if(option_index == SHOW_CONTROL_MODE_OPT) {
-	V{
-	  fprintf(stderr, "Enabling full control key display\n");
-	}
 	show_control = 1;
+	show_selective_control = 0;
       } else if(option_index == VERSION_OPT) {
 	printf("keylogger version: " VERSION "\n");
 	exit(0);
@@ -195,13 +194,22 @@ int main(int argc, char **argv)
 	exit(1);
       }
       break;
-    case 'v':
-      verbose_mode = 1;
-      break;
     default:
       /* strange get-opt error, just send the usage message and exit */
       usage();
       exit(1);
+    }
+  }
+
+  if(show_selective_control) {
+    V{
+      fprintf(stderr, "Showing selective control key presses only\n");
+    }
+  }
+
+  if(show_control) {
+    V{
+      fprintf(stderr, "Showing all control key presses\n");
     }
   }
 
