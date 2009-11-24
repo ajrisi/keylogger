@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-s -O3
+CFLAGS=-s -O3 -std=c99 -Wall
 TARGET=keylogger
 
 all:

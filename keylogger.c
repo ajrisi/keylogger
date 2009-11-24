@@ -78,20 +78,14 @@ int test_device (char *buf)
 
 int read_capslock(int kb, int *cl) {
   int yalv;
-  unsigned char *led_b;
+  unsigned char led_b=0;
   int ret = 0;
 
-  led_b = malloc(1);
-  if(led_b == NULL) {
-    return -1;
-  }
-  memset(led_b, 0, sizeof(led_b));
- 
   *cl = 0;
 
-  ioctl(kb, EVIOCGLED(sizeof(led_b)), led_b);
+  ioctl(kb, EVIOCGLED(sizeof(led_b)), &led_b);
   for (yalv = 0; yalv < LED_MAX; yalv++) {
-    if (TestBit(yalv, led_b)) {
+    if (TestBit(yalv, (&led_b))) {
       if(yalv == LED_CAPSL) {
 	*cl = 1;
 	ret = 1;
@@ -123,9 +117,7 @@ char * scan_for_devices (char *path)
     exit(1);
   }
   
-  // scan through /dev/input/* checking for activity whilst simulating keyboard activity
   while ((dir = readdir (event_devices)) != NULL && (found != PROBE_MATCH)) {
-    // ignore this and parent directory
     if ((strncmp (dir->d_name, ".", 1)) != 0) {
       snprintf (path, 1024, "%s%s", PATH, dir->d_name);
       found = test_device (path);
@@ -143,11 +135,9 @@ char * scan_for_devices (char *path)
 int main(int argc, char **argv) 
 {
   int kb;
-  int o;
   char *dev_path;
   char *auto_dev_path;
-  int err;
-  struct input_event ev[64] = {0};
+  struct input_event ev[64];
   int yalv;
   size_t rb = 0;
   int shift = 0;
@@ -213,14 +203,14 @@ int main(int argc, char **argv)
     }
   }
 
-  auto_dev_path = malloc(256);
+  auto_dev_path = malloc(1024);
   if(auto_dev_path == NULL) {
     V{
       fprintf(stderr, "Could not alloc. for auto dev path\n");
       exit(1);
     }
   }
-  memset(auto_dev_path, 0, 256);
+  memset(auto_dev_path, 0, 1024);
 
   /* we assume that the last argument, if it is still available, is the device
      that we want to attach to */  
@@ -271,13 +261,13 @@ int main(int argc, char **argv)
     
     for (yalv = 0; yalv < (int) (rb / sizeof(struct input_event)); yalv++) {
       if(EV_LED == ev[yalv].type) {
-	if(ev[yalv].code = 1) {
+	if(ev[yalv].code == 1) {
 	  /* the caps lock led changed states, I am going to interpret
 	     this as a change in caps lock */
 	  caps = ev[yalv].value;
 	}
       } else if (EV_KEY == ev[yalv].type) {
-	char c = ev[yalv].code;
+	int c = ev[yalv].code;
     	/* a key-release, only matters if we are letting off shift */
 	if(ev[yalv].value == 0) {
 
