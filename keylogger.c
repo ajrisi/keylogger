@@ -123,7 +123,9 @@ char * scan_for_devices (char *path)
       found = test_device (path);
     }
   }
-  
+
+  closedir(event_devices);
+
   if (found == PROBE_MATCH) {
     return path;
   } else {
